@@ -9,6 +9,7 @@ const BannerRoute = require("./routes/banner");
 const AttributeRoute = require("./routes/attribute");
 const ProductSchema = require("./routes/product");
 const SectionSchema = require("./routes/section");
+const CategorySchema = require("./routes/category");
 
 
 const app = express();
@@ -35,6 +36,7 @@ app.use("/banner", BannerRoute);
 app.use("/attribute", AttributeRoute);
 app.use("/product", ProductSchema);
 app.use("/section", SectionSchema);
+app.use("/category", CategorySchema);
 
 
 const mongoUrl = `mongodb+srv://${username}:${password}@cluster0.a1hrtd3.mongodb.net/${dbname}?retryWrites=true&w=majority`;

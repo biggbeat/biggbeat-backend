@@ -7,15 +7,31 @@ const BannerSchema = new mongoose.Schema({
   },
   heroImageMobile: {
     type: String,
-    require: true,
+    require: false,
   },
   backgroundImageWeb: {
     type: String,
-    require: true,
+    require: false,
   },
   backgroundImageMobile: {
     type: String,
-    require: true,
+    require: false,
+  },
+  backgroundColor: {
+    type: String,
+    require: false,
+  },
+  subTitle: {
+    type: String,
+    require: false,
+  },
+  title: {
+    type: String,
+    require: false,
+  },
+  offerName: {
+    type: String,
+    require: false,
   },
   productId: {
     type: String,
