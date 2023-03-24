@@ -1,6 +1,7 @@
 const express = require("express");
 const Category = require("../models/CategorySchema");
 const Section = require("../models/SectionSchema");
+const { convertToSlug } = require("../service/commonService");
 const router = express.Router();
 
 router.get("/get-category", async (req, res) => {
@@ -43,9 +44,19 @@ router.post("/add-category", async (req, res) => {
   const request = new Category(req.body);
 
   try {
-    const section = await request.save();
 
-    res.send({ status: 0000, message: "success", data: section }).status(200);
+    if (request.categoryTitle) {
+ 
+
+      let slug = convertToSlug(request.categoryTitle);
+      let isExist = await Category.exists({ categorySlug: slug });
+      if (isExist != null) {
+        slug = slug + "-";
+      }
+      request.categorySlug = slug;
+    }
+    const category = await request.save();
+    res.send({ status: 0000, message: "success", data: category }).status(200);
   } catch (error) {
     console.log("error : ", error);
     res.send({ status: 9999, message: "Something went wrong!" }).status(200);
