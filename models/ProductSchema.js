@@ -7,7 +7,16 @@ const ProductSchema = new mongoose.Schema({
   },
   productDesc: {
     type: String,
-    require: true,
+    require: Blob,
+  },
+  brand: {
+    type: String,
+    require: false,
+  },
+  rating: {
+    type: String,
+    require: false,
+    default : 5
   },
   slug: {
     type: String,
@@ -51,11 +60,11 @@ const ProductSchema = new mongoose.Schema({
   },
   images: {
     type: Array,
-    require : true
+    require: true,
   },
   attribute: {
     type: Array,
-    require : false
+    require: false,
   },
 });
 
