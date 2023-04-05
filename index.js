@@ -10,6 +10,7 @@ const AttributeRoute = require("./routes/attribute");
 const ProductSchema = require("./routes/product");
 const SectionSchema = require("./routes/section");
 const CategorySchema = require("./routes/category");
+const ReviewSchema = require("./routes/review");
 
 
 const app = express();
@@ -37,6 +38,7 @@ app.use("/attribute", AttributeRoute);
 app.use("/product", ProductSchema);
 app.use("/section", SectionSchema);
 app.use("/category", CategorySchema);
+app.use("/review", ReviewSchema);
 
 
 const mongoUrl = `mongodb+srv://${username}:${password}@cluster0.a1hrtd3.mongodb.net/${dbname}?retryWrites=true&w=majority`;

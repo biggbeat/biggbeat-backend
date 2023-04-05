@@ -7,7 +7,7 @@ const ProductSchema = new mongoose.Schema({
   },
   productDesc: {
     type: String,
-    require: Blob,
+    require: false,
   },
   brand: {
     type: String,
