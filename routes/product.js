@@ -1,6 +1,7 @@
 const express = require("express");
 const Product = require("../models/ProductSchema");
 const { createSlug, convertToSlug } = require("../service/commonService");
+const Category = require("../models/CategorySchema");
 const router = express.Router();
 
 router.get("/get-product", async (req, res) => {
@@ -41,7 +42,22 @@ router.post("/add-product", async (req, res) => {
       }
       request.slug = slug;
     }
-    const product = await request.save();
+    var category = null;
+    var product = null;
+    if (request.categorySlug) {
+      category = await Category.findOne({ categorySlug: request.categorySlug });
+      if (category != null) {
+        request.categoryTitle = category.categoryTitle;
+        product = await request.save();
+        category.products.push(product.id);
+        category.save();
+      } else {
+        res.send({ status: 9999, message: "Invalid Category!" }).status(200);
+      }
+    } else {
+      res.send({ status: 9999, message: "Invalid Category!" }).status(200);
+      // product = await request.save();
+    }
 
     res.send({ status: 0000, message: "success", data: product }).status(200);
   } catch (error) {

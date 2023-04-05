@@ -14,10 +14,18 @@ const ChildAttributeSchema = new mongoose.Schema({
     type: Boolean,
     required: true,
   },
+  isSeperateProduct: {
+    type: Boolean,
+    required: true,
+  },
   parentName: {
     type: String,
     require: true,
-  }
+  },
+  productSlug: {
+    type: String,
+    require: true,
+  },
   // ,
   // parentAttribute: {
   //   type: Object,

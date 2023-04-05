@@ -13,6 +13,18 @@ const ProductSchema = new mongoose.Schema({
     type: String,
     require: false,
   },
+  categorySlug: {
+    type: String,
+    require: false,
+  },
+  categoryTitle: {
+    type: String,
+    require: false,
+  },
+  deliveryTime: {
+    type: String,
+    require: false,
+  },
   price: {
     type: String,
     require: true,
