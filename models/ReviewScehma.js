@@ -7,17 +7,18 @@ const ReviewSchema = new mongoose.Schema({
     required: true,
   },
   date: {
-    type: Date,
-    default: moment(new Date()).format("DD-MM-YYYY"),
-    required: true,
+    type: String,
+    default: moment(new Date()).format().split("+")[0],
+    // default: moment(new Date()).format().split("+")[0].split("T").join(" | "),
+    required: false,
   },
   review: {
     type: String,
-    required: false,
+    required: true,
   },
   reviewCount: {
     type: Number,
-    required: false,
+    required: true,
   },
 });
 

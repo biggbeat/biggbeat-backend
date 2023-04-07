@@ -6,9 +6,20 @@ const router = express.Router();
 
 router.get("/get-product", async (req, res) => {
   try {
-    const banner = await Product.find({});
+    const products = await Product.find({});
 
-    res.send({ status: 0000, message: "success", data: banner }).status(200);
+    products.map((m ) => {
+      m.brand = "Nike";
+      m.rating = 4;
+      m.categorySlug = "joggers";
+      m.categoryTitle = "Joggers";
+      m.deliveryTime = "2-5 days";
+      m.save();
+
+      
+    })
+
+    res.send({ status: 0000, message: "success", data: products }).status(200);
   } catch (error) {
     console.log("error : ", error);
     res.send({ status: 9999, message: "Something went wrong!" }).status(200);

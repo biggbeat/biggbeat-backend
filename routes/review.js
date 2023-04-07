@@ -8,9 +8,13 @@ router.post("/get-rating-by-product", async (req, res) => {
   let body = req.body;
 
   try {
-    const reviews = await Review.find({ productSlug: body.slug });
+    if (body.productSlug) {
+      const reviews = await Review.find({ productSlug: body.slug });
 
-    res.send({ status: 0000, message: "success", data: reviews }).status(200);
+      res.send({ status: 0000, message: "success", data: reviews }).status(200);
+    } else {
+      res.send({ status: 9999, message: "Invalid call!" }).status(200);
+    }
   } catch (error) {
     console.log("error : ", error);
     res.send({ status: 9999, message: "Something went wrong!" }).status(200);
@@ -27,6 +31,7 @@ router.post("/add-rating", async (req, res) => {
         slug: request.productSlug,
       });
       if (isValidProduct) {
+
         const review = await request.save();
         res
           .send({ status: 0000, message: "success", data: review })
