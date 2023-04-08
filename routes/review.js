@@ -9,7 +9,7 @@ router.post("/get-rating-by-product", async (req, res) => {
 
   try {
     if (body.productSlug) {
-      const reviews = await Review.find({ productSlug: body.slug });
+      const reviews = await Review.find({ productSlug: body.productSlug });
 
       res.send({ status: 0000, message: "success", data: reviews }).status(200);
     } else {

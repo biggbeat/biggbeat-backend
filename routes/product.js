@@ -8,17 +8,6 @@ router.get("/get-product", async (req, res) => {
   try {
     const products = await Product.find({});
 
-    products.map((m ) => {
-      m.brand = "Nike";
-      m.rating = 4;
-      m.categorySlug = "joggers";
-      m.categoryTitle = "Joggers";
-      m.deliveryTime = "2-5 days";
-      m.save();
-
-      
-    })
-
     res.send({ status: 0000, message: "success", data: products }).status(200);
   } catch (error) {
     console.log("error : ", error);
