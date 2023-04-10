@@ -40,4 +40,18 @@ function convertToSlug(Text) {
     .replace(/ /g, "-")
     .replace(/[^\w-]+/g, "");
 }
-module.exports = { validateEmail, createSlug, convertToSlug };
+
+const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+const numbers ='0123456789';
+
+const generateOtp = (length) => {
+    let result = ' ';
+    const charactersLength = numbers.length;
+    for ( let i = 0; i < length; i++ ) {
+        result += numbers.charAt(Math.floor(Math.random() * charactersLength));
+    }
+
+    return  result.trim();
+}
+
+module.exports = { validateEmail, createSlug, convertToSlug , generateOtp};

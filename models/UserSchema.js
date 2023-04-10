@@ -17,13 +17,21 @@ const UserSchema = new mongoose.Schema({
     type: String,
     require: true,
   },
-  freeUser: {
-    type: Boolean,
+  contact: {
+    type: String,
     require: true,
+  },
+  address: {
+    type: String,
+    require: true,
+  },
+  verified: {
+    type: Boolean,
+    require: false,
+    default: false,
   },
 });
 
 const User = mongoose.model("users", UserSchema);
 
 module.exports = User;
-

@@ -1,48 +1,61 @@
 const express = require("express");
 const router = express.Router();
-const createCsvWriter = require("csv-writer").createObjectCsvWriter;
-const Fs = require("fs");
-const CsvReadableStream = require("csv-reader");
 const User = require("../models/UserSchema");
-const { validateEmail } = require("../service/commonService");
-
-const path = "./csv/user.csv";
-
-router.post("/createFile", async (req, res) => {
-  const csvWriter = createCsvWriter({
-    path: path,
-    header: [
-      { id: "name", title: "Name" },
-      { id: "email", title: "Email" },
-      { id: "password", title: "Password" },
-      { id: "freeUser", title: "Free User" },
-    ],
-  });
-
-  csvWriter
-    .writeRecords([]) // returns a promise
-    .then(() => {
-      res.send({ status: 0000, message: "success" }).status(200);
-    });
-});
+const OTP = require("../models/OtpSchema");
+const { validateEmail, generateOtp } = require("../service/commonService");
+const { sendEmail } = require("../service/emailService");
+const { USER_REGISTER_OTP_SUBJECT } = require("../service/constants");
+const fs = require("fs");
+const path = require("path");
+// import "../../backend/"
 
 router.post("/signup", async (req, res) => {
-  const request = new User(req.body[0]);
-  //   // let path = "../backend/csv/user.csv";
+  const request = new User(req.body);
+  var jsonPath = path.join(__dirname, "..", "template", "otp-template.html");
 
   try {
     const dbUser = await User.exists({ email: request.email });
-
+    var file = "";
     if (dbUser != null) {
       res.send({ status: 9999, message: "User already exist!" }).status(200);
     } else {
       if (!validateEmail(request.email)) {
         res
-          .send({ status: 9999, message: "Please Enter Valid Email" })
+          .send({ status: 9999, message: "Please enter valid email" })
           .status(200);
+      } else if (!!!request.password) {
+        res
+          .send({ status: 9999, message: "Please enter valid password" })
+          .status(200);
+      } else if (!!!request.address) {
+        res
+          .send({ status: 9999, message: "Please enter valid address" })
+          .status(200);
+      } else if (!!!request.name) {
+        res
+          .send({ status: 9999, message: "Please enter valid name" })
+          .status(200);
+      } else {
+        const otp = new OTP();
+        otp.email = request.email;
+        otp.otp = generateOtp(4);
+        otp.isExpired = false;
+        await otp.save();
+
+        request.verified = false;
+
+        fs.readFile(jsonPath, "utf8", function (err, data) {
+          if (err) {
+            return console.log(err);
+          }
+          file = data.replace("{{VERIFICATION_CODE}}", otp.otp);
+          file = file.replace("{{name}}", request.name);
+
+          sendEmail(request.email, USER_REGISTER_OTP_SUBJECT, file);
+          request.save();
+          res.send({ status: 0000, message: "success" }).status(200);
+        });
       }
-      await request.save();
-      res.send({ status: 0000, message: "success" }).status(200);
     }
   } catch (error) {
     console.log("error : ", error);
@@ -50,112 +63,37 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-router.post("/update-plan", async (req, res) => {
-  const request = new User(req.body);
-  //   // let path = "../backend/csv/user.csv";
+router.post("/verify", async (req, res) => {
+  const otp = new OTP(req.body);
 
   try {
-    const dbUser = await User.findOne({ email: request.email });
-
-    if (dbUser != null) {
-      if (!validateEmail(request.email)) {
-        res
-          .send({ status: 9999, message: "Please Enter Valid Email" })
-          .status(200);
+    if (otp.email && otp.otp) {
+      const otpDb = await OTP.findOne({ otp: otp.otp, isExpired: false });
+      if (otpDb != null) {
+        const user = await User.findOne({ email: otp.email, verified: false });
+        if (user != null) {
+          otpDb.isExpired = true;
+          user.verified = true;
+          user.save();
+          await otpDb.save();
+          res.send({ status: 0000, message: "success" }).status(200);
+        } else {
+          res.send({ status: 9999, message: "Invalid Otp!" }).status(200);
+        }
       } else {
-        dbUser.freeUser = false;
+        res.send({ status: 9999, message: "Invalid Otp!" }).status(200);
       }
-      const savedUser = await dbUser.save();
-      res
-        .send({ status: 0000, message: "success", data: savedUser })
-        .status(200);
-    } else {
-      res.send({ status: 9999, message: "User already exist!" }).status(200);
     }
   } catch (error) {
-    console.log("error : ", error);
-    res.send({ status: 9999, message: "Something went wrong!" }).status(200);
-  }
-});
-router.post("/cancel-plan", async (req, res) => {
-  const request = new User(req.body);
-  //   // let path = "../backend/csv/user.csv";
-
-  try {
-    const dbUser = await User.findOne({ email: request.email });
-
-    if (dbUser != null) {
-      if (!validateEmail(request.email)) {
-        res
-          .send({ status: 9999, message: "Please Enter Valid Email" })
-          .status(200);
-      } else {
-        dbUser.freeUser = true;
-      }
-      const savedUser = await dbUser.save();
-      res
-        .send({ status: 0000, message: "success", data: savedUser })
-        .status(200);
-    } else {
-      res.send({ status: 9999, message: "User already exist!" }).status(200);
-    }
-  } catch (error) {
-    console.log("error : ", error);
     res.send({ status: 9999, message: "Something went wrong!" }).status(200);
   }
 });
 
 router.post("/delete", async (req, res) => {
   let body = req.body;
-  // let path = "../backend/csv/user.csv";
-
   try {
-    const data = await User.deleteOne({ email: body[0].email });
-    console.log("data : ", data);
-    // read old data
-    // let inputStream = Fs.createReadStream(path, "utf8");
+    await User.deleteOne({ email: body.email });
     res.send({ status: 0000, message: "success" }).status(200);
-
-    // let i = 0;
-    // let oldData = [];
-    // inputStream
-    //   .pipe(
-    //     new CsvReadableStream({
-    //       parseNumbers: true,
-    //       parseBooleans: true,
-    //       trim: true,
-    //     })
-    //   )
-    //   .on("data", function (row) {
-    //     if (i != 0) {
-    //       let obj = {
-    //         name: row[0],
-    //         email: row[1],
-    //         password: row[2],
-    //         freeUser: row[3],
-    //       };
-    //       oldData.push(obj);
-    //     }
-    //     i++;
-    //   })
-    //   .on("end", function () {
-    //     const csvWriter = createCsvWriter({
-    //       path: path,
-    //       header: [
-    //         { id: "name", title: "Name" },
-    //         { id: "email", title: "Email" },
-    //         { id: "password", title: "Password" },
-    //         { id: "freeUser", title: "Free User" },
-    //       ],
-    //     });
-
-    //     let removedUserList = oldData.filter((m) => m.email != body[0].email);
-    //     csvWriter
-    //       .writeRecords(removedUserList) // returns a promise
-    //       .then(() => {
-    //         res.send({ status: 0000, message: "success" }).status(200);
-    //       });
-    //   });
   } catch (error) {
     console.log("error : ", error.message);
     res.send({ status: 9999, message: "Something went wrong!" }).status(200);
@@ -168,70 +106,34 @@ router.post("/signin", async (req, res) => {
 
   try {
     if (body.email && body.password) {
-      const isExistEmail = await User.findOne({
+      const user = await User.findOne({
         email: body.email,
         password: body.password,
       });
 
-      if (isExistEmail) {
-        res
+      if (user) {
+        if(user.verified){
+          res
+            .send({
+              status: "0000",
+              message: "Successfully login!",
+              data: user,
+            })
+            .status(200);
+        }else{
+          res
           .send({
-            status: "0000",
-            message: "Successfully login!",
-            data: isExistEmail,
+            status: "9999",
+            message: "Please verify your email.",
           })
           .status(200);
+        }
       } else {
         res
           .send({ status: "9999", message: "Invalid credentials!" })
           .status(200);
       }
     }
-
-    // read old data
-    // let inputStream = Fs.createReadStream(path, "utf8");
-
-    // let i = 0;
-    // let oldData = [];
-    // inputStream
-    //   .pipe(
-    //     new CsvReadableStream({
-    //       parseNumbers: true,
-    //       parseBooleans: true,
-    //       trim: true,
-    //     })
-    //   )
-    //   .on("data", function (row) {
-    //     let freeUser = row[3] != null && row[3] != undefined ? row[3] : true;
-    //     if (i != 0) {
-    //       let obj = {
-    //         name: row[0],
-    //         email: row[1],
-    //         password: row[2],
-    //         freeUser: freeUser,
-    //       };
-    //       oldData.push(obj);
-    //     }
-    //     i++;
-    //   })
-    //   .on("end", function () {
-    //     let isExistEmail = oldData.find(
-    //       (m) => m.email == body.email && m.password == body.password
-    //     );
-    //     if (isExistEmail) {
-    //       res
-    //         .send({
-    //           status: "0000",
-    //           message: "Successfully login!",
-    //           data: isExistEmail,
-    //         })
-    //         .status(200);
-    //     } else {
-    //       res
-    //         .send({ status: "9999", message: "Invalid credentials!" })
-    //         .status(200);
-    //     }
-    //   });
   } catch (error) {
     console.log("error : ", error.message);
     res.send({ status: 9999, message: "Something went wrong!" }).status(200);

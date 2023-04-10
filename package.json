@@ -20,6 +20,7 @@
     "fs-extra": "^11.1.0",
     "moment": "^2.29.4",
     "mongoose": "^6.9.2",
+    "nodemailer": "^6.9.1",
     "stripe": "^11.5.0",
     "yahoo-finance": "^0.3.8",
     "yahoo-finance2": "^2.3.10"
