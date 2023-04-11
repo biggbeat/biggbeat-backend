@@ -4,10 +4,11 @@ const User = require("../models/UserSchema");
 const OTP = require("../models/OtpSchema");
 const { validateEmail, generateOtp } = require("../service/commonService");
 const { sendEmail } = require("../service/emailService");
-const { USER_REGISTER_OTP_SUBJECT } = require("../service/constants");
+const { USER_REGISTER_OTP_SUBJECT, SENT_OTP } = require("../service/constants");
 const fs = require("fs");
 const path = require("path");
-// import "../../backend/"
+
+
 
 router.post("/signup", async (req, res) => {
   const request = new User(req.body);
@@ -102,7 +103,6 @@ router.post("/delete", async (req, res) => {
 
 router.post("/signin", async (req, res) => {
   let body = req.body;
-  // let path = "../backend/csv/user.csv";
 
   try {
     if (body.email && body.password) {
@@ -112,7 +112,7 @@ router.post("/signin", async (req, res) => {
       });
 
       if (user) {
-        if(user.verified){
+        if (user.verified) {
           res
             .send({
               status: "0000",
@@ -120,13 +120,19 @@ router.post("/signin", async (req, res) => {
               data: user,
             })
             .status(200);
-        }else{
+        } else {
+          const otp = new OTP();
+          await OTP.deleteMany({ email: body.email });
+          otp.email = body.email;
+          otp.otp = generateOtp(4);
+          otp.isExpired = false;
+          await otp.save();
           res
-          .send({
-            status: "9999",
-            message: "Please verify your email.",
-          })
-          .status(200);
+            .send({
+              status: SENT_OTP,
+              message: "Please verify your email. OTP sent to your email",
+            })
+            .status(200);
         }
       } else {
         res

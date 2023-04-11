@@ -1,4 +1,5 @@
 const USER_REGISTER_OTP_SUBJECT =
   "ONE TIME PASSWORD FOR USER REGISTERATION  - Bigg Beat";
+  const SENT_OTP = "0001";
 
-module.exports = { USER_REGISTER_OTP_SUBJECT };
+module.exports = { USER_REGISTER_OTP_SUBJECT , SENT_OTP };
