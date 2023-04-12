@@ -1,6 +1,7 @@
 const express = require("express");
 const Review = require("../models/ReviewScehma");
 const Product = require("../models/ProductSchema");
+const User = require("../models/UserSchema");
 const router = express.Router();
 
 router.post("/get-rating-by-product", async (req, res) => {
@@ -30,12 +31,23 @@ router.post("/add-rating", async (req, res) => {
       const isValidProduct = await Product.exists({
         slug: request.productSlug,
       });
-      if (isValidProduct) {
-
-        const review = await request.save();
-        res
-          .send({ status: 0000, message: "success", data: review })
-          .status(200);
+      const isValidUser = await User.findById({
+        _id: request.userId,
+      });
+      if (isValidProduct && isValidUser) {
+        if (isValidUser.verified) {
+          const review = await request.save();
+          res
+            .send({ status: 0000, message: "success", data: review })
+            .status(200);
+        } else {
+          res
+            .send({
+              status: 9999,
+              message: "Please verify your email to add a review!",
+            })
+            .status(200);
+        }
       } else {
         res.send({ status: 9999, message: "Invalid call!" }).status(200);
       }

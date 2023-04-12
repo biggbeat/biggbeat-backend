@@ -59,7 +59,6 @@ router.post("/signup", async (req, res) => {
       }
     }
   } catch (error) {
-    console.log("error : ", error);
     res.send({ status: 9999, message: "Something went wrong!" }).status(200);
   }
 });
