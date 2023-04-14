@@ -7,7 +7,7 @@ router.get("/get-section", async (req, res) => {
   try {
     const section = await Section.find({}).populate('products');
 
-    res.send({ status: 0000, message: "success", data: section }).status(200);
+    res.send({ status: "0000", message: "success", data: section }).status(200);
   } catch (error) {
     console.log("error : ", error);
     res.send({ status: 9999, message: "Something went wrong!" }).status(200);
@@ -20,7 +20,7 @@ router.post("/add-section", async (req, res) => {
   try {
     const section = await request.save();
 
-    res.send({ status: 0000, message: "success", data: section }).status(200);
+    res.send({ status: "0000", message: "success", data: section }).status(200);
   } catch (error) {
     console.log("error : ", error);
     res.send({ status: 9999, message: "Something went wrong!" }).status(200);

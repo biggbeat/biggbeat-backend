@@ -8,7 +8,7 @@ router.get("/get-banner", async (req, res) => {
   try {
     const banner = await Banner.find({});
 
-    res.send({ status: 0000, message: "success", data: banner }).status(200);
+    res.send({ status: "0000", message: "success", data: banner }).status(200);
   } catch (error) {
     console.log("error : ", error);
     res.send({ status: 9999, message: "Something went wrong!" }).status(200);
@@ -22,7 +22,7 @@ router.post("/add-banner", async (req, res) => {
   try {
     const banner = await request.save();
 
-    res.send({ status: 0000, message: "success", data: banner }).status(200);
+    res.send({ status: "0000", message: "success", data: banner }).status(200);
   } catch (error) {
     console.log("error : ", error);
     res.send({ status: 9999, message: "Something went wrong!" }).status(200);

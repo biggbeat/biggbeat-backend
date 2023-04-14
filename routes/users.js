@@ -54,7 +54,7 @@ router.post("/signup", async (req, res) => {
 
           sendEmail(request.email, USER_REGISTER_OTP_SUBJECT, file);
           request.save();
-          res.send({ status: 0000, message: "success" }).status(200);
+          res.send({ status: "0000", message: "success" }).status(200);
         });
       }
     }
@@ -76,7 +76,7 @@ router.post("/verify", async (req, res) => {
           user.verified = true;
           user.save();
           await otpDb.save();
-          res.send({ status: 0000, message: "success" }).status(200);
+          res.send({ status: "0000", message: "success" }).status(200);
         } else {
           res.send({ status: 9999, message: "Invalid Otp!" }).status(200);
         }
@@ -93,7 +93,7 @@ router.post("/delete", async (req, res) => {
   let body = req.body;
   try {
     await User.deleteOne({ email: body.email });
-    res.send({ status: 0000, message: "success" }).status(200);
+    res.send({ status: "0000", message: "success" }).status(200);
   } catch (error) {
     console.log("error : ", error.message);
     res.send({ status: 9999, message: "Something went wrong!" }).status(200);

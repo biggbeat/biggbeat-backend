@@ -8,7 +8,7 @@ router.get("/get-product", async (req, res) => {
   try {
     const products = await Product.find({});
 
-    res.send({ status: 0000, message: "success", data: products }).status(200);
+    res.send({ status: "0000", message: "success", data: products }).status(200);
   } catch (error) {
     console.log("error : ", error);
     res.send({ status: 9999, message: "Something went wrong!" }).status(200);
@@ -19,7 +19,7 @@ router.post("/get-product-by-slug", async (req, res) => {
   try {
     const product = await Product.findOne({ slug: body.slug });
 
-    res.send({ status: 0000, message: "success", data: product }).status(200);
+    res.send({ status: "0000", message: "success", data: product }).status(200);
   } catch (error) {
     console.log("error : ", error);
     res.send({ status: 9999, message: "Something went wrong!" }).status(200);
@@ -59,7 +59,7 @@ router.post("/add-product", async (req, res) => {
       // product = await request.save();
     }
 
-    res.send({ status: 0000, message: "success", data: product }).status(200);
+    res.send({ status: "0000", message: "success", data: product }).status(200);
   } catch (error) {
     console.log("error : ", error);
     res.send({ status: 9999, message: "Something went wrong!" }).status(200);

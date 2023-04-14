@@ -11,8 +11,7 @@ router.post("/get-rating-by-product", async (req, res) => {
   try {
     if (body.productSlug) {
       const reviews = await Review.find({ productSlug: body.productSlug });
-
-      res.send({ status: 0000, message: "success", data: reviews }).status(200);
+      res.send({ status: "0000", message: "success", data: reviews }).status(200);
     } else {
       res.send({ status: 9999, message: "Invalid call!" }).status(200);
     }
@@ -24,8 +23,6 @@ router.post("/get-rating-by-product", async (req, res) => {
 
 router.post("/add-rating", async (req, res) => {
   const request = new Review(req.body);
-  //   // let path = "../backend/csv/user.csv";
-
   try {
     if (request.productSlug) {
       const isValidProduct = await Product.exists({
@@ -38,7 +35,7 @@ router.post("/add-rating", async (req, res) => {
         if (isValidUser.verified) {
           const review = await request.save();
           res
-            .send({ status: 0000, message: "success", data: review })
+            .send({ status: "0000", message: "success", data: review })
             .status(200);
         } else {
           res
