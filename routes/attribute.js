@@ -30,6 +30,17 @@ router.post("/add-parent-attribute", async (req, res) => {
         res.send({ status: 9999, message: "Something went wrong!" }).status(200);
     }
 });
+router.put("/edit-parent-attribute", async (req, res) => {
+    const request = new ParentAttribute(req.body);
+    try {
+      console.log("edit  : ",request);
+        // const attribute = await request.save();
+        res.send({ status: "0000", message: "success", data: attribute }).status(200);
+    } catch (error) {
+        console.log("error : ", error);
+        res.send({ status: 9999, message: "Something went wrong!" }).status(200);
+    }
+});
 
 router.post("/get-child-attribute-by-parent", async (req, res) => {
   // const request = new ChildAttribute(req.body);
