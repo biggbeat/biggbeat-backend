@@ -8,8 +8,6 @@ const { USER_REGISTER_OTP_SUBJECT, SENT_OTP } = require("../service/constants");
 const fs = require("fs");
 const path = require("path");
 
-
-
 router.post("/signup", async (req, res) => {
   const request = new User(req.body);
   var jsonPath = path.join(__dirname, "..", "template", "otp-template.html");
@@ -29,19 +27,17 @@ router.post("/signup", async (req, res) => {
           .send({ status: 9999, message: "Please enter valid password" })
           .status(200);
       }
-      
+
       // else if (!!!request.address) {
       //   res
       //     .send({ status: 9999, message: "Please enter valid address" })
       //     .status(200);
       // }
-       else if (!!!request.name) {
+      else if (!!!request.name) {
         res
           .send({ status: 9999, message: "Please enter valid name" })
           .status(200);
-      }
-      
-      else {
+      } else {
         const otp = new OTP();
         otp.email = request.email;
         otp.otp = generateOtp(4);
@@ -98,6 +94,7 @@ router.post("/delete", async (req, res) => {
   let body = req.body;
   try {
     await User.deleteOne({ email: body.email });
+    await OTP.deleteMany({ email: body.email });
     res.send({ status: "0000", message: "success" }).status(200);
   } catch (error) {
     console.log("error : ", error.message);
@@ -182,14 +179,46 @@ router.post("/reset", async (req, res) => {
   }
 });
 
-router.post("/test", async (request, response) => {
-  const user = new User(request.body);
+router.post("/resend-otp", async (req, res) => {
+  const request = new User(req.body);
 
   try {
-    await user.save();
-    response.send(user);
+    if (request.email) {
+      const userDb = await User.findOne({
+        email: request.email,
+        verified: true,
+      });
+      if (userDb) {
+        if (userDb.verified == false) {
+          const otp = new OTP();
+          await OTP.deleteMany({ email: request.email });
+          otp.email = request.email;
+          otp.otp = generateOtp(4);
+          otp.isExpired = false;
+          await otp.save();
+
+          fs.readFile(jsonPath, "utf8", function (err, data) {
+            if (err) {
+              return console.log(err);
+            }
+            file = data.replace("{{VERIFICATION_CODE}}", otp.otp);
+            file = file.replace("{{name}}", request.name);
+            sendEmail(request.email, USER_REGISTER_OTP_SUBJECT, file);
+          });
+          res.send({ status: "0000", message: "success" }).status(200);
+        } else {
+          res
+            .send({ status: 9999, message: "Already verified user!" })
+            .status(200);
+        }
+      } else {
+        res
+        .send({ status: 9999, message: "User not found!" })
+        .status(200);
+      }
+    }
   } catch (error) {
-    response.status(500).send(error);
+    res.send({ status: 9999, message: "Something went wrong!" }).status(200);
   }
 });
 
@@ -200,7 +229,6 @@ router.post("/find-user", async (request, response) => {
     const data = await User.find({ email: user.email });
     response.send(data);
   } catch (error) {
-    console.log("error : ", error);
     response.status(500).send(error);
   }
 });
