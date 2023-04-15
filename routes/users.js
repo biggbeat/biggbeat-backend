@@ -34,11 +34,12 @@ router.post("/signup", async (req, res) => {
       //   res
       //     .send({ status: 9999, message: "Please enter valid address" })
       //     .status(200);
-      // } else if (!!!request.name) {
-      //   res
-      //     .send({ status: 9999, message: "Please enter valid name" })
-      //     .status(200);
       // }
+       else if (!!!request.name) {
+        res
+          .send({ status: 9999, message: "Please enter valid name" })
+          .status(200);
+      }
       
       else {
         const otp = new OTP();
