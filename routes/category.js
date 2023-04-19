@@ -2,6 +2,7 @@ const express = require("express");
 const Category = require("../models/CategorySchema");
 const Section = require("../models/SectionSchema");
 const { convertToSlug } = require("../service/commonService");
+const { SUCCESS_CODE, ERROR_CODE } = require("../service/constants");
 const router = express.Router();
 
 router.get("/get-category", async (req, res) => {
@@ -9,10 +10,14 @@ router.get("/get-category", async (req, res) => {
     // const section = await Category.find({}).populate('products');
     const section = await Category.find({});
 
-    res.send({ status: "0000", message: "success", data: section }).status(200);
+    res
+      .send({ status: SUCCESS_CODE, message: "success", data: section })
+      .status(200);
   } catch (error) {
     console.log("error : ", error);
-    res.send({ status: 9999, message: "Something went wrong!" }).status(200);
+    res
+      .send({ status: ERROR_CODE, message: "Something went wrong!" })
+      .status(200);
   }
 });
 
@@ -23,10 +28,14 @@ router.post("/get-product-by-category", async (req, res) => {
       _id: request.categoryId,
     }).populate("products");
 
-    res.send({ status: "0000", message: "success", data: section }).status(200);
+    res
+      .send({ status: SUCCESS_CODE, message: "success", data: section })
+      .status(200);
   } catch (error) {
     console.log("error : ", error);
-    res.send({ status: 9999, message: "Something went wrong!" }).status(200);
+    res
+      .send({ status: ERROR_CODE, message: "Something went wrong!" })
+      .status(200);
   }
 });
 
@@ -37,10 +46,14 @@ router.post("/get-by-slug", async (req, res) => {
       categorySlug: request.categorySlug,
     }).populate("products");
 
-    res.send({ status: "0000", message: "success", data: section }).status(200);
+    res
+      .send({ status: SUCCESS_CODE, message: "success", data: section })
+      .status(200);
   } catch (error) {
     console.log("error : ", error);
-    res.send({ status: 9999, message: "Something went wrong!" }).status(200);
+    res
+      .send({ status: ERROR_CODE, message: "Something went wrong!" })
+      .status(200);
   }
 });
 
@@ -48,10 +61,14 @@ router.get("/get-category-products", async (req, res) => {
   try {
     const section = await Category.find({}).populate("products");
 
-    res.send({ status: "0000", message: "success", data: section }).status(200);
+    res
+      .send({ status: SUCCESS_CODE, message: "success", data: section })
+      .status(200);
   } catch (error) {
     console.log("error : ", error);
-    res.send({ status: 9999, message: "Something went wrong!" }).status(200);
+    res
+      .send({ status: ERROR_CODE, message: "Something went wrong!" })
+      .status(200);
   }
 });
 
@@ -68,10 +85,12 @@ router.post("/add-category", async (req, res) => {
       request.categorySlug = slug;
     }
     const category = await request.save();
-    res.send({ status: "0000", message: "success", data: category }).status(200);
+    res
+      .send({ status: SUCCESS_CODE, message: "success", data: category })
+      .status(200);
   } catch (error) {
     console.log("error : ", error);
-    res.send({ status: 9999, message: error.message }).status(200);
+    res.send({ status: ERROR_CODE, message: error.message }).status(200);
   }
 });
 router.post("/add-product-to-category", async (req, res) => {
@@ -92,16 +111,18 @@ router.post("/add-product-to-category", async (req, res) => {
         });
         category.products = products;
         category.save();
-        res.send({ status: "0000", message: "success" }).status(200);
+        res.send({ status: SUCCESS_CODE, message: "success" }).status(200);
       } else {
-        res.send({ status: 9999, message: "Invalid call!" }).status(200);
+        res.send({ status: ERROR_CODE, message: "Invalid call!" }).status(200);
       }
     } else {
-      res.send({ status: 9999, message: "Invalid call!" }).status(200);
+      res.send({ status: ERROR_CODE, message: "Invalid call!" }).status(200);
     }
   } catch (error) {
     console.log("error : ", error);
-    res.send({ status: 9999, message: "Something went wrong!" }).status(200);
+    res
+      .send({ status: ERROR_CODE, message: "Something went wrong!" })
+      .status(200);
   }
 });
 

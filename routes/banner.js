@@ -1,5 +1,6 @@
 const express = require("express");
 const Banner = require("../models/BannerSchema");
+const { SUCCESS_CODE, ERROR_CODE } = require("../service/constants");
 const router = express.Router();
 
 router.get("/get-banner", async (req, res) => {
@@ -8,10 +9,10 @@ router.get("/get-banner", async (req, res) => {
   try {
     const banner = await Banner.find({});
 
-    res.send({ status: "0000", message: "success", data: banner }).status(200);
+    res.send({ status: SUCCESS_CODE, message: "success", data: banner }).status(200);
   } catch (error) {
     console.log("error : ", error);
-    res.send({ status: 9999, message: "Something went wrong!" }).status(200);
+    res.send({ status: ERROR_CODE, message: "Something went wrong!" }).status(200);
   }
 });
 
@@ -22,10 +23,10 @@ router.post("/add-banner", async (req, res) => {
   try {
     const banner = await request.save();
 
-    res.send({ status: "0000", message: "success", data: banner }).status(200);
+    res.send({ status: SUCCESS_CODE, message: "success", data: banner }).status(200);
   } catch (error) {
     console.log("error : ", error);
-    res.send({ status: 9999, message: "Something went wrong!" }).status(200);
+    res.send({ status: ERROR_CODE, message: "Something went wrong!" }).status(200);
   }
 });
 

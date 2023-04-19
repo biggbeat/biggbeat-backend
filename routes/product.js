@@ -2,16 +2,17 @@ const express = require("express");
 const Product = require("../models/ProductSchema");
 const { createSlug, convertToSlug } = require("../service/commonService");
 const Category = require("../models/CategorySchema");
+const { SUCCESS_CODE, ERROR_CODE } = require("../service/constants");
 const router = express.Router();
 
 router.get("/get-product", async (req, res) => {
   try {
     const products = await Product.find({});
 
-    res.send({ status: "0000", message: "success", data: products }).status(200);
+    res.send({ status: SUCCESS_CODE, message: "success", data: products }).status(200);
   } catch (error) {
     console.log("error : ", error);
-    res.send({ status: 9999, message: "Something went wrong!" }).status(200);
+    res.send({ status: ERROR_CODE, message: "Something went wrong!" }).status(200);
   }
 });
 router.post("/get-product-by-slug", async (req, res) => {
@@ -19,10 +20,10 @@ router.post("/get-product-by-slug", async (req, res) => {
   try {
     const product = await Product.findOne({ slug: body.slug });
 
-    res.send({ status: "0000", message: "success", data: product }).status(200);
+    res.send({ status: SUCCESS_CODE, message: "success", data: product }).status(200);
   } catch (error) {
     console.log("error : ", error);
-    res.send({ status: 9999, message: "Something went wrong!" }).status(200);
+    res.send({ status: ERROR_CODE, message: "Something went wrong!" }).status(200);
   }
 });
 
@@ -52,17 +53,17 @@ router.post("/add-product", async (req, res) => {
         category.products.push(product.id);
         category.save();
       } else {
-        res.send({ status: 9999, message: "Invalid Category!" }).status(200);
+        res.send({ status: ERROR_CODE, message: "Invalid Category!" }).status(200);
       }
     } else {
-      res.send({ status: 9999, message: "Invalid Category!" }).status(200);
+      res.send({ status: ERROR_CODE, message: "Invalid Category!" }).status(200);
       // product = await request.save();
     }
 
-    res.send({ status: "0000", message: "success", data: product }).status(200);
+    res.send({ status: SUCCESS_CODE, message: "success", data: product }).status(200);
   } catch (error) {
     console.log("error : ", error);
-    res.send({ status: 9999, message: "Something went wrong!" }).status(200);
+    res.send({ status: ERROR_CODE, message: "Something went wrong!" }).status(200);
   }
 });
 

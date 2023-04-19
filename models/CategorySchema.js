@@ -7,10 +7,14 @@ const CategorySchema = new mongoose.Schema({
   },
   categoryImage: {
     type: String,
-    required: true,
+    required: false,
   },
   categorySlug: {
     type: String,
+    required: false,
+  },
+  active: {
+    type: Boolean,
     required: false,
   },
   products: [

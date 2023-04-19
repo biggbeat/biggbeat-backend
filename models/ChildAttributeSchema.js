@@ -16,15 +16,19 @@ const ChildAttributeSchema = new mongoose.Schema({
   },
   isSeperateProduct: {
     type: Boolean,
-    required: true,
+    required: false,
   },
   parentName: {
+    type: String,
+    require: false,
+  },
+  parentId: {
     type: String,
     require: true,
   },
   productSlug: {
     type: String,
-    require: true,
+    require: false,
   },
   // ,
   // parentAttribute: {

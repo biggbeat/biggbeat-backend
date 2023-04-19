@@ -4,7 +4,12 @@ const User = require("../models/UserSchema");
 const OTP = require("../models/OtpSchema");
 const { validateEmail, generateOtp } = require("../service/commonService");
 const { sendEmail } = require("../service/emailService");
-const { USER_REGISTER_OTP_SUBJECT, SENT_OTP } = require("../service/constants");
+const {
+  USER_REGISTER_OTP_SUBJECT,
+  SENT_OTP,
+  SUCCESS_CODE,
+  ERROR_CODE,
+} = require("../service/constants");
 const fs = require("fs");
 const path = require("path");
 
@@ -16,26 +21,28 @@ router.post("/signup", async (req, res) => {
     const dbUser = await User.exists({ email: request.email });
     var file = "";
     if (dbUser != null) {
-      res.send({ status: 9999, message: "User already exist!" }).status(200);
+      res
+        .send({ status: ERROR_CODE, message: "User already exist!" })
+        .status(200);
     } else {
       if (!validateEmail(request.email)) {
         res
-          .send({ status: 9999, message: "Please enter valid email" })
+          .send({ status: ERROR_CODE, message: "Please enter valid email" })
           .status(200);
       } else if (!!!request.password) {
         res
-          .send({ status: 9999, message: "Please enter valid password" })
+          .send({ status: ERROR_CODE, message: "Please enter valid password" })
           .status(200);
       }
 
       // else if (!!!request.address) {
       //   res
-      //     .send({ status: 9999, message: "Please enter valid address" })
+      //     .send({ status: ERROR_CODE, message: "Please enter valid address" })
       //     .status(200);
       // }
       else if (!!!request.name) {
         res
-          .send({ status: 9999, message: "Please enter valid name" })
+          .send({ status: ERROR_CODE, message: "Please enter valid name" })
           .status(200);
       } else {
         const otp = new OTP();
@@ -55,12 +62,14 @@ router.post("/signup", async (req, res) => {
 
           sendEmail(request.email, USER_REGISTER_OTP_SUBJECT, file);
           request.save();
-          res.send({ status: "0000", message: "success" }).status(200);
+          res.send({ status: SUCCESS_CODE, message: "success" }).status(200);
         });
       }
     }
   } catch (error) {
-    res.send({ status: 9999, message: "Something went wrong!" }).status(200);
+    res
+      .send({ status: ERROR_CODE, message: "Something went wrong!" })
+      .status(200);
   }
 });
 
@@ -77,16 +86,18 @@ router.post("/verify", async (req, res) => {
           user.verified = true;
           user.save();
           await otpDb.save();
-          res.send({ status: "0000", message: "success" }).status(200);
+          res.send({ status: SUCCESS_CODE, message: "success" }).status(200);
         } else {
-          res.send({ status: 9999, message: "Invalid Otp!" }).status(200);
+          res.send({ status: ERROR_CODE, message: "Invalid Otp!" }).status(200);
         }
       } else {
-        res.send({ status: 9999, message: "Invalid Otp!" }).status(200);
+        res.send({ status: ERROR_CODE, message: "Invalid Otp!" }).status(200);
       }
     }
   } catch (error) {
-    res.send({ status: 9999, message: "Something went wrong!" }).status(200);
+    res
+      .send({ status: ERROR_CODE, message: "Something went wrong!" })
+      .status(200);
   }
 });
 
@@ -95,10 +106,12 @@ router.post("/delete", async (req, res) => {
   try {
     await User.deleteOne({ email: body.email });
     await OTP.deleteMany({ email: body.email });
-    res.send({ status: "0000", message: "success" }).status(200);
+    res.send({ status: SUCCESS_CODE, message: "success" }).status(200);
+    t;
   } catch (error) {
-    console.log("error : ", error.message);
-    res.send({ status: 9999, message: "Something went wrong!" }).status(200);
+    res
+      .send({ status: ERROR_CODE, message: "Something went wrong!" })
+      .status(200);
   }
 });
 
@@ -116,7 +129,7 @@ router.post("/signin", async (req, res) => {
         if (user.verified) {
           res
             .send({
-              status: "0000",
+              status: SUCCESS_CODE,
               message: "Successfully login!",
               data: user,
             })
@@ -137,13 +150,15 @@ router.post("/signin", async (req, res) => {
         }
       } else {
         res
-          .send({ status: "9999", message: "Invalid credentials!" })
+          .send({ status: ERROR_CODE, message: "Invalid credentials!" })
           .status(200);
       }
     }
   } catch (error) {
     console.log("error : ", error.message);
-    res.send({ status: 9999, message: "Something went wrong!" }).status(200);
+    res
+      .send({ status: ERROR_CODE, message: "Something went wrong!" })
+      .status(200);
   }
 });
 
@@ -162,20 +177,22 @@ router.post("/reset", async (req, res) => {
         await isExistEmail.save();
         res
           .send({
-            status: "0000",
+            status: SUCCESS_CODE,
             message: "Successfully login!",
             data: isExistEmail,
           })
           .status(200);
       } else {
         res
-          .send({ status: "9999", message: "Invalid credentials!" })
+          .send({ status: ERROR_CODE, message: "Invalid credentials!" })
           .status(200);
       }
     }
   } catch (error) {
     console.log("error : ", error.message);
-    res.send({ status: 9999, message: "Something went wrong!" }).status(200);
+    res
+      .send({ status: ERROR_CODE, message: "Something went wrong!" })
+      .status(200);
   }
 });
 
@@ -205,28 +222,28 @@ router.post("/resend-otp", async (req, res) => {
             file = file.replace("{{name}}", request.name);
             sendEmail(request.email, USER_REGISTER_OTP_SUBJECT, file);
           });
-          res.send({ status: "0000", message: "success" }).status(200);
+          res.send({ status: SUCCESS_CODE, message: "success" }).status(200);
         } else {
           res
-            .send({ status: 9999, message: "Already verified user!" })
+            .send({ status: ERROR_CODE, message: "Already verified user!" })
             .status(200);
         }
       } else {
         res
-        .send({ status: 9999, message: "User not found!" })
-        .status(200);
+          .send({ status: ERROR_CODE, message: "User not found!" })
+          .status(200);
       }
     }
   } catch (error) {
-    res.send({ status: 9999, message: "Something went wrong!" }).status(200);
+    res
+      .send({ status: ERROR_CODE, message: "Something went wrong!" })
+      .status(200);
   }
 });
 
-router.post("/find-user", async (request, response) => {
-  const user = new User(request.body);
-
+router.get("/find-all", async (request, response) => {
   try {
-    const data = await User.find({ email: user.email });
+    const data = await User.find({});
     response.send(data);
   } catch (error) {
     response.status(500).send(error);
