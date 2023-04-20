@@ -11,6 +11,7 @@ const ProductSchema = require("./routes/product");
 const SectionSchema = require("./routes/section");
 const CategorySchema = require("./routes/category");
 const ReviewSchema = require("./routes/review");
+const FaqSchema = require("./routes/faq");
 
 
 const app = express();
@@ -39,6 +40,7 @@ app.use("/product", ProductSchema);
 app.use("/section", SectionSchema);
 app.use("/category", CategorySchema);
 app.use("/review", ReviewSchema);
+app.use("/faq", FaqSchema);
 
 
 const mongoUrl = `mongodb+srv://${username}:${password}@cluster0.a1hrtd3.mongodb.net/${dbname}?retryWrites=true&w=majority`;

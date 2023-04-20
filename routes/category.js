@@ -93,6 +93,29 @@ router.post("/add-category", async (req, res) => {
     res.send({ status: ERROR_CODE, message: error.message }).status(200);
   }
 });
+
+router.put("/edit-category", async (req, res) => {
+  const request = req.body;
+  console.log("request : ",request);
+  try {
+    if (request.id) {x  
+      const category = await Category.findOne({ _id: request.id });
+      category.categoryTitle = request.categoryTitle;
+      category.active = request.active;
+      category.categoryImage = request.categoryImage;
+      const data = await category.save();
+      res
+        .send({ status: SUCCESS_CODE, message: "success", data: data })
+        .status(200);
+    } else {
+      res.send({ status: ERROR_CODE, message: "Invalid call!" }).status(200);
+    }
+  } catch (error) {
+    res
+      .send({ status: ERROR_CODE, message: "Something went wrong!" })
+      .status(200);
+  }
+});
 router.post("/add-product-to-category", async (req, res) => {
   // const request = new Category(req.body);
   const request = req.body;
