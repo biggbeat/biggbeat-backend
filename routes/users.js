@@ -117,11 +117,16 @@ router.post("/delete", async (req, res) => {
 
 router.post("/signin", async (req, res) => {
   let body = req.body;
-  console.log("body  : ",body);
+  console.log("body  : ", body);
 
   try {
     if (body.email && body.password) {
-      var jsonPath = path.join(__dirname, "..", "template", "otp-template.html");
+      var jsonPath = path.join(
+        __dirname,
+        "..",
+        "template",
+        "otp-template.html"
+      );
       const user = await User.findOne({
         email: body.email,
         password: body.password,
@@ -130,6 +135,7 @@ router.post("/signin", async (req, res) => {
       if (user) {
         var file = "";
         if (user.verified) {
+          user.password = "" 
           res
             .send({
               status: SUCCESS_CODE,
@@ -173,7 +179,7 @@ router.post("/signin", async (req, res) => {
   }
 });
 
-router.post("/reset", async (req, res) => {
+router.post("/reset-password", async (req, res) => {
   let body = req.body;
   // let path = "../backend/csv/user.csv";
 
@@ -184,20 +190,35 @@ router.post("/reset", async (req, res) => {
       });
 
       if (isExistEmail) {
-        isExistEmail.password = body.password;
-        await isExistEmail.save();
-        res
-          .send({
-            status: SUCCESS_CODE,
-            message: "Successfully login!",
-            data: isExistEmail,
-          })
-          .status(200);
+        const otp = await OTP.findOne({
+          email: body.email,
+          otp: body.otp,
+          isExpired: false,
+        });
+        if (otp) {
+            isExistEmail.password = body.password;
+            isExistEmail.verified = true;
+            await isExistEmail.save();
+            otp.isExpired = true;
+            await otp.save();
+            isExistEmail.password = ""
+            res
+              .send({
+                status: SUCCESS_CODE,
+                message: "Successfully login!",
+                data: isExistEmail,
+              })
+              .status(200);
+        } else {
+          res.send({ status: ERROR_CODE, message: "Invalid otp!" }).status(200);
+        }
       } else {
         res
-          .send({ status: ERROR_CODE, message: "Invalid credentials!" })
+          .send({ status: ERROR_CODE, message: "User not found!" })
           .status(200);
       }
+    } else {
+      res.send({ status: ERROR_CODE, message: "Invalid Call!" }).status(200);
     }
   } catch (error) {
     console.log("error : ", error.message);
@@ -214,33 +235,31 @@ router.post("/resend-otp", async (req, res) => {
     if (request.email) {
       const userDb = await User.findOne({
         email: request.email,
-        verified: true,
       });
       if (userDb) {
-        var jsonPath = path.join(__dirname, "..", "template", "otp-template.html");
-        if (userDb.verified == false) {
-          const otp = new OTP();
-          await OTP.deleteMany({ email: request.email });
-          otp.email = request.email;
-          otp.otp = generateOtp(4);
-          otp.isExpired = false;
-          await otp.save();
-          var file = "";
+        var jsonPath = path.join(
+          __dirname,
+          "..",
+          "template",
+          "otp-template.html"
+        );
+        const otp = new OTP();
+        await OTP.deleteMany({ email: request.email });
+        otp.email = request.email;
+        otp.otp = generateOtp(4);
+        otp.isExpired = false;
+        await otp.save();
+        var file = "";
 
-          fs.readFile(jsonPath, "utf8", function (err, data) {
-            if (err) {
-              return console.log(err);
-            }
-            var file = data.replace("{{VERIFICATION_CODE}}", otp.otp);
-            file = file.replace("{{name}}", request.name);
-            sendEmail(request.email, USER_REGISTER_OTP_SUBJECT, file);
-          });
-          res.send({ status: SUCCESS_CODE, message: "success" }).status(200);
-        } else {
-          res
-            .send({ status: ERROR_CODE, message: "Already verified user!" })
-            .status(200);
-        }
+        fs.readFile(jsonPath, "utf8", function (err, data) {
+          if (err) {
+            return console.log(err);
+          }
+          var file = data.replace("{{VERIFICATION_CODE}}", otp.otp);
+          file = file.replace("{{name}}", request.name);
+          sendEmail(request.email, USER_REGISTER_OTP_SUBJECT, file);
+        });
+        res.send({ status: SUCCESS_CODE, message: "success" }).status(200);
       } else {
         res
           .send({ status: ERROR_CODE, message: "User not found!" })
