@@ -117,15 +117,18 @@ router.post("/delete", async (req, res) => {
 
 router.post("/signin", async (req, res) => {
   let body = req.body;
+  console.log("body  : ",body);
 
   try {
     if (body.email && body.password) {
+      var jsonPath = path.join(__dirname, "..", "template", "otp-template.html");
       const user = await User.findOne({
         email: body.email,
         password: body.password,
       });
 
       if (user) {
+        var file = "";
         if (user.verified) {
           res
             .send({
@@ -141,6 +144,14 @@ router.post("/signin", async (req, res) => {
           otp.otp = generateOtp(4);
           otp.isExpired = false;
           await otp.save();
+          fs.readFile(jsonPath, "utf8", function (err, data) {
+            if (err) {
+              return console.log(err);
+            }
+            file = data.replace("{{VERIFICATION_CODE}}", otp.otp);
+            file = file.replace("{{name}}", user.name);
+            sendEmail(user.email, USER_REGISTER_OTP_SUBJECT, file);
+          });
           res
             .send({
               status: SENT_OTP,
@@ -155,7 +166,7 @@ router.post("/signin", async (req, res) => {
       }
     }
   } catch (error) {
-    console.log("error : ", error.message);
+    console.log(error);
     res
       .send({ status: ERROR_CODE, message: "Something went wrong!" })
       .status(200);
@@ -206,6 +217,7 @@ router.post("/resend-otp", async (req, res) => {
         verified: true,
       });
       if (userDb) {
+        var jsonPath = path.join(__dirname, "..", "template", "otp-template.html");
         if (userDb.verified == false) {
           const otp = new OTP();
           await OTP.deleteMany({ email: request.email });
@@ -213,12 +225,13 @@ router.post("/resend-otp", async (req, res) => {
           otp.otp = generateOtp(4);
           otp.isExpired = false;
           await otp.save();
+          var file = "";
 
           fs.readFile(jsonPath, "utf8", function (err, data) {
             if (err) {
               return console.log(err);
             }
-            file = data.replace("{{VERIFICATION_CODE}}", otp.otp);
+            var file = data.replace("{{VERIFICATION_CODE}}", otp.otp);
             file = file.replace("{{name}}", request.name);
             sendEmail(request.email, USER_REGISTER_OTP_SUBJECT, file);
           });
