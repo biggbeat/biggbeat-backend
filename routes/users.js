@@ -131,7 +131,6 @@ router.post("/signin", async (req, res) => {
         email: body.email,
         password: body.password,
       });
-
       if (user) {
         var file = "";
         if (user.verified) {
