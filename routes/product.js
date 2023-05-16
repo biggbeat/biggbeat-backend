@@ -9,6 +9,15 @@ router.get("/get-product", async (req, res) => {
   try {
     const products = await Product.find({});
 
+    // products.map(p => {
+    //   if(!p.slug){
+    //     let slug = convertToSlug(p.productTitle);
+    //     p.slug = slug;
+    //     p.save();
+    //   }
+
+    // })
+
     res.send({ status: SUCCESS_CODE, message: "success", data: products }).status(200);
   } catch (error) {
     console.log("error : ", error);
