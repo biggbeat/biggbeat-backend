@@ -80,7 +80,7 @@ router.post("/verify", async (req, res) => {
     if (otp.email && otp.otp) {
       const otpDb = await OTP.findOne({ otp: otp.otp, isExpired: false });
       if (otpDb != null) {
-        const user = await User.findOne({ email: otp.email, verified: false });
+        const user = await User.findOne({ email: otp.email });
         if (user != null) {
           otpDb.isExpired = true;
           user.verified = true;
@@ -117,7 +117,6 @@ router.post("/delete", async (req, res) => {
 
 router.post("/signin", async (req, res) => {
   let body = req.body;
-  console.log("body  : ", body);
 
   try {
     if (body.email && body.password) {
