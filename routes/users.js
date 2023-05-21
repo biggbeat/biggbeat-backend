@@ -191,7 +191,7 @@ router.post("/reset-password", async (req, res) => {
         const otp = await OTP.findOne({
           email: body.email,
           otp: body.otp,
-          isExpired: false,
+          isExpired: true,
         });
         if (otp) {
             isExistEmail.password = body.password;
